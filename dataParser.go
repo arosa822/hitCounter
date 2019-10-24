@@ -10,9 +10,10 @@ import (
 	"strings"
 )
 
-type hitList struct {
-	User      string `json: "user"`
-	TimeStamp []int  `json: "timeStamp"`
+type userData struct {
+	Users     []string `json: "user"`
+	TimeVisit [][]int  `json: "timeStamp"`
+	HitCount  int      `json: "hitCount"`
 }
 
 // readLines reads a whole file into memory and returns a slice of its lines.
@@ -61,17 +62,21 @@ func processByTime(list *[]string) map[string][]int {
 }
 
 // convertMapToStruct takes in a map object as an argument and returns a
-// mapped hitList structure defined above
-// returned object needs to have key value as a string for compatibility with
-// encoding into JSON
-func convertMapToStruct(unstructData *map[string][]int) map[string]hitList {
-	data := make(map[string]hitList)
-	count := 1
+// structure of tupe userData
+func convertMapToStruct(unstructData *map[string][]int) userData {
+	//data := make(map[string]userData)
+	var data userData
+	count := 0
+
+	// iterate over the map and throw in userData structure
 	for key, value := range *unstructData {
-		// throw key value pairs in structure and convert the count to string
-		data[strconv.Itoa(count)] = hitList{User: key, TimeStamp: value}
-		count++
+		data.Users = append(data.Users, key)
+		data.TimeVisit = append(data.TimeVisit, value)
+		// add the length of each slice containing a time stamp to the count
+		count = count + len(value)
+
 	}
+	data.HitCount = count
 	return data
 }
 
