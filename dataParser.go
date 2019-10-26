@@ -22,7 +22,7 @@ type UserData struct {
 	TimeVisit      [][]int        `json:"timeStamp"`
 	HitCount       int            `json:"hitCount"`
 	UniqueVisitors int            `json:"uniqueVisits"`
-	Data           []DailyMetrics `'json:"T-7D"`
+	Data           []DailyMetrics `json:"data"`
 }
 
 // readLines reads a whole file into memory and returns a list of strings
@@ -127,15 +127,25 @@ func main() {
 	// load up config parameters
 	configs := getConfig()
 
+	// read in data
 	listOfUsers, err := readLines(configs.File)
 	if err != nil {
 		panic(err)
 	}
 
+	// filter data and create a map object
 	filteredList := processByTime(&listOfUsers)
 
+	//  convert map into data structure
 	siteVisits := convertMapToStruct(&filteredList)
 
+	// sample format for embedded fields
+	daySeven := DailyMetrics{DayOfMonth: "monday", TotalHits: 33}
+	daySix := DailyMetrics{DayOfMonth: "wednesday", TotalHits: 20, UniqueVisitors: 10, RepeatVisits: 40}
+	siteVisits.Data = append(siteVisits.Data, daySeven)
+	siteVisits.Data = append(siteVisits.Data, daySix)
+
+	// encode structure into json format
 	jsonString, err = json.Marshal(siteVisits)
 	if err != nil {
 		panic(err)
@@ -146,6 +156,7 @@ func main() {
 	// write to file
 	writeToFile(&jsonString)
 
-	siteVisits.findMostRecent()
+	// data exploration
+	// siteVisits.findMostRecent()
 
 }
