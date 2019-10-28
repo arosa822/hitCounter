@@ -40,15 +40,11 @@ func (data *UserData) findMostRecent() int64 {
 		}
 	}
 
-	// debug code
-	// fmt.Println(mostRecent)
-	// mostRecentTimeObj := time.Unix(int64(mostRecent), 0)
-	// fmt.Println(mostRecentTimeObj)
-	// fmt.Println(mostRecentTimeObj.Date())
-
 	return int64(mostRecent)
 
 }
+
+//processByDay processes UserData.TimeVisit and populates DailyMetrics struct
 func (data *UserData) processByDay(configs Params) {
 
 	var total, unique, repeat int = 0, 0, 0
@@ -73,7 +69,6 @@ func (data *UserData) processByDay(configs Params) {
 		// each list in list is specific to a unique user
 		// this must be done for each day in span created above
 		for _, j := range data.TimeVisit {
-			fmt.Println(j)
 			for _, k := range j {
 				// check if item in the list matches wrapping day
 				if time.Unix(int64(k), 0).Day() == d {
@@ -87,17 +82,13 @@ func (data *UserData) processByDay(configs Params) {
 				}
 			}
 		}
-		// debug
-		fmt.Println(date)
+		// if anything over 1 visit means it is a repeat visit
 		if unique > 1 {
 			unique = unique - repeat
 		}
 
-		fmt.Printf("Total: %d\nUnique: %d\nRepeat: %d\n", total, unique, repeat)
-
 		// create the map object with data fields
 		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: date, TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
-
 		// push the map object into data.Data slice
 		data.Data = append(data.Data, daily[strconv.Itoa(count)])
 
@@ -108,14 +99,13 @@ func (data *UserData) processByDay(configs Params) {
 
 }
 
-// FindDupesInArray returns the number of duplicate entries in an array for a
-// specific day
+// FindDupesInArray returns the number of duplicate entries
+// takes a list of unix times and specified day
 func FindDupesInArray(array []int, day int) int {
 	count := 0
 	for i := 0; i < len(array); i++ {
 		if time.Unix(int64(array[i]), 0).Day() == day {
 			count++
-
 		}
 	}
 	return count
@@ -214,19 +204,8 @@ func main() {
 	//  convert map into data structure
 	siteVisits := convertMapToStruct(&filteredList)
 
-	// debug
-	for _, j := range siteVisits.TimeVisit {
-		fmt.Println(j)
-	}
-
 	// process data using methods
 	siteVisits.processByDay(configs)
-
-	// sample format for embedded fields
-	// daySeven := DailyMetrics{DayOfMonth: "monday", TotalHits: 33}
-	// daySix := DailyMetrics{DayOfMonth: "wednesday", TotalHits: 20, UniqueVisitors: 10, RepeatVisits: 40}
-	// siteVisits.Data = append(siteVisits.Data, daySeven)
-	// siteVisits.Data = append(siteVisits.Data, daySix)
 
 	// encode structure into json format
 	jsonString, err = json.Marshal(siteVisits)
@@ -238,9 +217,5 @@ func main() {
 
 	// write to file
 	writeToFile(&jsonString, configs.Output)
-
-	// data exploration
-	mostRecent := siteVisits.findMostRecent()
-	fmt.Printf("%T\n", mostRecent)
 
 }
