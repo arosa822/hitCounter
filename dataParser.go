@@ -31,7 +31,6 @@ type UserData struct {
 // sorting method for UserData to find the most recent time entry
 func (data *UserData) findMostRecent() int64 {
 	mostRecent := data.TimeVisit[0][0]
-
 	for _, i := range data.TimeVisit {
 		for _, j := range i {
 			if j > mostRecent {
@@ -39,12 +38,10 @@ func (data *UserData) findMostRecent() int64 {
 			}
 		}
 	}
-
 	return int64(mostRecent)
-
 }
 
-//processByDay processes UserData.TimeVisit and populates DailyMetrics struct
+// processByDay processes UserData.TimeVisit and populates DailyMetrics struct
 func (data *UserData) processByDay(configs Params) {
 
 	var total, unique, repeat int = 0, 0, 0
@@ -59,12 +56,10 @@ func (data *UserData) processByDay(configs Params) {
 
 	// go through each day
 	for n := 0; n < query; n++ {
-
 		// start at the top and subtract a day
 		timeObject := mostRecentEntry.AddDate(0, 0, (-1 * n))
 		_, m, d := timeObject.Date()
 		date := fmt.Sprintf("%v-%d", m, d)
-
 		// traverse the 2d array
 		// each list in list is specific to a unique user
 		// this must be done for each day in span created above
@@ -75,10 +70,8 @@ func (data *UserData) processByDay(configs Params) {
 					total++
 					unique++
 					repeat = FindDupesInArray(j, d)
-
 				} else {
 					continue
-
 				}
 			}
 		}
@@ -86,17 +79,14 @@ func (data *UserData) processByDay(configs Params) {
 		if unique > 1 {
 			unique = unique - repeat
 		}
-
 		// create the map object with data fields
 		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: date, TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
 		// push the map object into data.Data slice
 		data.Data = append(data.Data, daily[strconv.Itoa(count)])
 
 		total, repeat, unique = 0, 0, 0
-
 		count++
 	}
-
 }
 
 // FindDupesInArray returns the number of duplicate entries
@@ -114,15 +104,16 @@ func FindDupesInArray(array []int, day int) int {
 // readLines reads a whole file into memory and returns a list of strings
 // containing each line.
 func readLines(path string) ([]string, error) {
+	var lines []string
 	file, err := os.Open(path)
+
 	if err != nil {
 		return nil, err
 	}
-
 	defer file.Close()
 
-	var lines []string
 	scanner := bufio.NewScanner(file)
+
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
@@ -135,7 +126,6 @@ func processByTime(list *[]string) map[string][]int {
 
 	for _, line := range *list {
 		entry := strings.Split(line, ",")
-
 		// entry must have an IP and time in order to be added to map
 		if len(entry) < 2 {
 			continue
@@ -144,17 +134,15 @@ func processByTime(list *[]string) map[string][]int {
 			entry[1] = strings.Join(strings.Fields(entry[1]), "")
 			// convert unix string to int
 			unixTime, err := strconv.Atoi(entry[1])
+
 			if err != nil {
 				panic(err)
 			}
-
 			// append the map: entry[0] =  IP
 			// duplicates are appended to the key value entry[0]
 			mapOfUsers[entry[0]] = append(mapOfUsers[entry[0]], unixTime)
-
 		}
 	}
-
 	return mapOfUsers
 }
 
@@ -164,16 +152,13 @@ func convertMapToStruct(unstructData *map[string][]int) UserData {
 	//data := make(map[string]UserData)
 	var data UserData
 	count := 0
-
 	// iterate over the map and throw in struct
 	for key, value := range *unstructData {
 		data.Users = append(data.Users, key)
 		data.TimeVisit = append(data.TimeVisit, value)
 		// add the length of each slice containing a time stamp to the count
 		count = count + len(value)
-
 	}
-
 	data.UniqueVisitors = len(data.Users)
 	data.HitCount = count
 	return data
@@ -217,5 +202,4 @@ func main() {
 
 	// write to file
 	writeToFile(&jsonString, configs.Output)
-
 }
