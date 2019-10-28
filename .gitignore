@@ -5,3 +5,4 @@ staging/
 .DS_Store
 data/a*.txt
 dataSamples/
+test.json
