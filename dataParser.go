@@ -75,7 +75,7 @@ func (data *UserData) processByDay(configs Params) {
 				}
 			}
 		}
-		// if anything over 1 visit means it is a repeat visit
+		// anything over 1 visit means it is a repeat visit
 		if unique > 1 {
 			unique = unique - repeat
 		}
