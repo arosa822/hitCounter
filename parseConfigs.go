@@ -6,9 +6,11 @@ import (
 	"os"
 )
 
+// Params are all the file configurations from configs.json
 type Params struct {
-	Days string `json:"days"`
-	File string `json:"file"`
+	Days   string `json:"days"`
+	File   string `json:"file"`
+	Output string `json:"outputFile"`
 }
 
 func getConfig() Params {
