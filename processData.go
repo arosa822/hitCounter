@@ -153,8 +153,8 @@ func convertMapToStruct(unstructData *map[string][]int) UserData {
 	var data UserData
 	count := 0
 	// iterate over the map and throw in struct
-	for key, value := range *unstructData {
-		data.Users = append(data.Users, key)
+	for _, value := range *unstructData {
+		data.Users = append(data.Users, strconv.Itoa(count))
 		data.TimeVisit = append(data.TimeVisit, value)
 		// add the length of each slice containing a time stamp to the count
 		count = count + len(value)
@@ -171,7 +171,7 @@ func writeToFile(json *[]uint8, location string) {
 	}
 }
 
-func main() {
+func processFile() {
 	var jsonString []byte
 
 	// load up config parameters
