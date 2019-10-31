@@ -11,23 +11,6 @@ import (
 	"time"
 )
 
-// DailyMetrics is an embedded json list containing processed data
-type DailyMetrics struct {
-	DayOfMonth     string `json:"date"`
-	TotalHits      int    `json:"totalHits"`
-	UniqueVisitors int    `json:"unique"`
-	RepeatVisits   int    `json:"repeat"`
-}
-
-// UserData is the main json struct
-type UserData struct {
-	Users          []string       `json:"users"`
-	TimeVisit      [][]int        `json:"timeStamp"`
-	HitCount       int            `json:"hitCount"`
-	UniqueVisitors int            `json:"uniqueVisits"`
-	Data           []DailyMetrics `json:"data"`
-}
-
 // sorting method for UserData to find the most recent time entry
 func (data *UserData) findMostRecent() int64 {
 	mostRecent := data.TimeVisit[0][0]
@@ -58,8 +41,8 @@ func (data *UserData) processByDay(configs Params) {
 	for n := 0; n < query; n++ {
 		// start at the top and subtract a day
 		timeObject := mostRecentEntry.AddDate(0, 0, (-1 * n))
-		_, m, d := timeObject.Date()
-		date := fmt.Sprintf("%v-%d", m, d)
+		_, _, d := timeObject.Date()
+		//date := fmt.Sprintf("%v-%d", m, d)
 		// traverse the 2d array
 		// each list in list is specific to a unique user
 		// this must be done for each day in span created above
@@ -80,7 +63,7 @@ func (data *UserData) processByDay(configs Params) {
 			unique = unique - repeat
 		}
 		// create the map object with data fields
-		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: date, TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
+		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: timeObject.Unix(), TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
 		// push the map object into data.Data slice
 		data.Data = append(data.Data, daily[strconv.Itoa(count)])
 
