@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -154,7 +153,7 @@ func writeToFile(json *[]uint8, location string) {
 	}
 }
 
-func processFile() {
+func processFile() string {
 	var jsonString []byte
 
 	// load up config parameters
@@ -181,8 +180,8 @@ func processFile() {
 		panic(err)
 	}
 
-	fmt.Println(string(jsonString))
-
 	// write to file
 	writeToFile(&jsonString, configs.Output)
+
+	return string(jsonString)
 }

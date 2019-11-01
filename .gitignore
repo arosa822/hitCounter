@@ -6,3 +6,4 @@ staging/
 data/a*.txt
 dataSamples/
 test.json
+App_linux/
