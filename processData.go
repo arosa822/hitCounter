@@ -27,9 +27,11 @@ func (data *UserData) findMostRecent() int64 {
 func (data *UserData) processByDay(configs Params) {
 
 	var total, unique, repeat int = 0, 0, 0
-	daily := make(map[string]DailyMetrics)
 	mostRecentEntry := time.Unix(data.findMostRecent(), 0)
 	query, err := strconv.Atoi(configs.Days)
+
+	// initialize struct with header - variadic function to unpack headers
+	data.Head = append(data.Head, []string{"day", "total", "unique", "repeat"}...)
 
 	if err != nil {
 		panic(err)
@@ -41,7 +43,6 @@ func (data *UserData) processByDay(configs Params) {
 		// start at the top and subtract a day
 		timeObject := mostRecentEntry.AddDate(0, 0, (-1 * n))
 		_, _, d := timeObject.Date()
-		//date := fmt.Sprintf("%v-%d", m, d)
 		// traverse the 2d array
 		// each list in list is specific to a unique user
 		// this must be done for each day in span created above
@@ -61,10 +62,9 @@ func (data *UserData) processByDay(configs Params) {
 		if unique > 1 {
 			unique = unique - repeat
 		}
-		// create the map object with data fields
-		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: timeObject.Unix(), TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
-		// push the map object into data.Data slice
-		data.Data = append(data.Data, daily[strconv.Itoa(count)])
+		// append the data into the struct
+		temp := []int{int(timeObject.Unix()), total, unique, repeat}
+		data.Data = append(data.Data, temp)
 
 		total, repeat, unique = 0, 0, 0
 		count++

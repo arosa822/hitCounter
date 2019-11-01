@@ -38,6 +38,7 @@ func main() {
 		fmt.Println(processFile())
 	case "-r": // runs the api and spins up the server
 		spinServer()
+		fmt.Println("Server initialized on port 8080...")
 
 	default:
 		fmt.Printf("Usage:\n\t-r: (run) - spins up the server exposing to port 8080" +

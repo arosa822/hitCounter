@@ -17,10 +17,10 @@ type DailyMetrics struct {
 
 // UserData is the main json struct
 type UserData struct {
-	Head           string         `json:"head"`
-	Users          []string       `json:"_"`
-	TimeVisit      [][]int        `json:"_"`
-	HitCount       int            `json:"_"`
-	UniqueVisitors int            `json:"_"`
-	Data           []DailyMetrics `json:"data"`
+	Head           []string `json:"head"`
+	Users          []string `json:"_"`
+	TimeVisit      [][]int  `json:"_"`
+	HitCount       int      `json:"_"`
+	UniqueVisitors int      `json:"_"`
+	Data           [][]int  `json:"data"`
 }
