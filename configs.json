@@ -1,6 +1,6 @@
 {
     "days":"7",
-    "file":"./data/sample.txt",
+    "file":"./data/airserv-adr.txt",
     "outputFile":"./test.json"
     
 }

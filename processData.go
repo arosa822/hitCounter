@@ -3,30 +3,12 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
-
-// DailyMetrics is an embedded json list containing processed data
-type DailyMetrics struct {
-	DayOfMonth     string `json:"date"`
-	TotalHits      int    `json:"totalHits"`
-	UniqueVisitors int    `json:"unique"`
-	RepeatVisits   int    `json:"repeat"`
-}
-
-// UserData is the main json struct
-type UserData struct {
-	Users          []string       `json:"users"`
-	TimeVisit      [][]int        `json:"timeStamp"`
-	HitCount       int            `json:"hitCount"`
-	UniqueVisitors int            `json:"uniqueVisits"`
-	Data           []DailyMetrics `json:"data"`
-}
 
 // sorting method for UserData to find the most recent time entry
 func (data *UserData) findMostRecent() int64 {
@@ -45,9 +27,11 @@ func (data *UserData) findMostRecent() int64 {
 func (data *UserData) processByDay(configs Params) {
 
 	var total, unique, repeat int = 0, 0, 0
-	daily := make(map[string]DailyMetrics)
 	mostRecentEntry := time.Unix(data.findMostRecent(), 0)
 	query, err := strconv.Atoi(configs.Days)
+
+	// initialize struct with header - variadic function to unpack headers
+	data.Head = append(data.Head, []string{"day", "total", "unique", "repeat"}...)
 
 	if err != nil {
 		panic(err)
@@ -58,8 +42,7 @@ func (data *UserData) processByDay(configs Params) {
 	for n := 0; n < query; n++ {
 		// start at the top and subtract a day
 		timeObject := mostRecentEntry.AddDate(0, 0, (-1 * n))
-		_, m, d := timeObject.Date()
-		date := fmt.Sprintf("%v-%d", m, d)
+		_, _, d := timeObject.Date()
 		// traverse the 2d array
 		// each list in list is specific to a unique user
 		// this must be done for each day in span created above
@@ -79,10 +62,9 @@ func (data *UserData) processByDay(configs Params) {
 		if unique > 1 {
 			unique = unique - repeat
 		}
-		// create the map object with data fields
-		daily[strconv.Itoa(count)] = DailyMetrics{DayOfMonth: date, TotalHits: total, UniqueVisitors: unique, RepeatVisits: repeat}
-		// push the map object into data.Data slice
-		data.Data = append(data.Data, daily[strconv.Itoa(count)])
+		// append the data into the struct
+		temp := []int{int(timeObject.Unix()), total, unique, repeat}
+		data.Data = append(data.Data, temp)
 
 		total, repeat, unique = 0, 0, 0
 		count++
@@ -153,8 +135,8 @@ func convertMapToStruct(unstructData *map[string][]int) UserData {
 	var data UserData
 	count := 0
 	// iterate over the map and throw in struct
-	for key, value := range *unstructData {
-		data.Users = append(data.Users, key)
+	for _, value := range *unstructData {
+		data.Users = append(data.Users, strconv.Itoa(count))
 		data.TimeVisit = append(data.TimeVisit, value)
 		// add the length of each slice containing a time stamp to the count
 		count = count + len(value)
@@ -171,7 +153,7 @@ func writeToFile(json *[]uint8, location string) {
 	}
 }
 
-func main() {
+func processFile() string {
 	var jsonString []byte
 
 	// load up config parameters
@@ -198,8 +180,8 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(string(jsonString))
-
 	// write to file
 	writeToFile(&jsonString, configs.Output)
+
+	return string(jsonString)
 }
