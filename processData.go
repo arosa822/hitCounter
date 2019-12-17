@@ -153,11 +153,10 @@ func writeToFile(json *[]uint8, location string) {
 	}
 }
 
-func processFile() string {
+// processFile is the main wrapper function for processing data, takes in
+// parameters from JSON
+func processFile(configs Params) string {
 	var jsonString []byte
-
-	// load up config parameters
-	configs := getConfig()
 
 	// read in data
 	listOfUsers, err := readLines(configs.File)
